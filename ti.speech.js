@@ -8,8 +8,8 @@ var SFSpeechRecognizer = require("Speech/SFSpeechRecognizer"),
     SOURCE_TYPE_MICROPHONE;
 
 (function constructor() {
-    exports.SOURCE_TYPE_URL = SOURCE_TYPE_URL = "url";
-    exports.SOURCE_TYPE_MICROPHONE = SOURCE_TYPE_MICROPHONE = "microphone";
+    SOURCE_TYPE_URL = "url";
+    SOURCE_TYPE_MICROPHONE = "microphone";
 })();
 
 exports.initialize = function(locale) {
@@ -22,7 +22,7 @@ exports.initialize = function(locale) {
 };
 
 exports.isSupported = function() {
-    return speechRecognizer && speechRecognizer.isAvailable === true;
+    return speechRecognizer && speechRecognizer.isAvailable();
 };
 
 exports.recognize = function(args) {
@@ -30,12 +30,15 @@ exports.recognize = function(args) {
     var progressCallback = args.progress || null;
 
     if (!progressCallback) {
-        Ti.API.error("No \"progress\" callback supplied - You will not be notified about transcription updates").
+        Ti.API.error("No \"progress\" callback supplied - You will not be notified about transcription updates");
     }
 
     if (type == SOURCE_TYPE_URL) {
         var url = args.url.split("."); // Keep it for now: Split into filename and extension
-        var request = SFSpeechURLRecognitionRequest.alloc().initWithURL(NSURL.fileURLWithPath(NSBundle.mainBundle().pathForResourceOfType(url[0], url[1])));
+        var soundPath = NSBundle.mainBundle.pathForResourceOfType(url[0], url[1]);
+        var soundURL = NSURL.fileURLWithPath(soundPath);
+
+        var request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundPath);
 
         speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
             progressCallback({
@@ -49,3 +52,7 @@ exports.recognize = function(args) {
         Ti.API.error("Unhandled type supplied:" + type);
     }
 };
+
+exports.SOURCE_TYPE_URL = SOURCE_TYPE_URL;
+
+exports.SOURCE_TYPE_MICROPHONE = SOURCE_TYPE_MICROPHONE;
