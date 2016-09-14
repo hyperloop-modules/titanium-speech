@@ -5,15 +5,15 @@ var btn = Ti.UI.createButton({
     title: "Recognize speech"
 });
 
+var TiSpeech = require("ti.speech");
+TiSpeech.initialize("en_US");
+
+if (!TiSpeech.isSupported()) {
+    alert("Speech recognition is not available on this device!");
+    btn.setEnabled(false);
+}
+
 btn.addEventListener("click", function() {
-    var TiSpeech = require("ti.speech");
-    TiSpeech.initialize("en_US");
-
-    if (!TiSpeech.isSupported()) {
-        Ti.API.error("Speech recognition is not available on this device!");
-        return;
-    }
-
     TiSpeech.recognize({
         type: TiSpeech.SOURCE_TYPE_URL,
         url: "one_more_thing.mp3",
