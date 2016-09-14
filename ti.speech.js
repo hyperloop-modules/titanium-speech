@@ -32,7 +32,7 @@ exports.recognize = function(args) {
     if (!progressCallback) {
        Ti.API.error("No \"progress\" callback supplied - You will not be notified about transcription updates");
     }
-
+    
     if (type == SOURCE_TYPE_URL) {
         var url = args.url.split("."); // Keep it for now: Split into filename and extension
         var soundPath = NSBundle.mainBundle().pathForResourceOfType(url[0], url[1]);
@@ -40,9 +40,10 @@ exports.recognize = function(args) {
 
         var request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundURL);
 
-        speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
+        speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {            
             progressCallback({
                 value: result.bestTranscription.formattedString,
+                finished: result.isFinal
             });
         });
     } else if (type == SOURCE_TYPE_MICROPHONE) {
