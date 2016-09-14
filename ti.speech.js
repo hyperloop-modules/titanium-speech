@@ -38,11 +38,9 @@ exports.recognize = function(args) {
         var soundPath = NSBundle.mainBundle().pathForResourceOfType(url[0], url[1]);
         var soundURL = NSURL.fileURLWithPath(soundPath);
 
-        var request = SFSpeechURLRecognitionRequest.alloc().initWithURL(NSURL.cast(soundPath));
+        var request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundURL);
 
         speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
-            Ti.API.error("in callback!");
-
             progressCallback({
                 value: result.bestTranscription.formattedString,
             });
