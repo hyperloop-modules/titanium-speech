@@ -20,6 +20,13 @@ var label = Ti.UI.createLabel({
 if (!TiSpeech.isSupported()) {
     alert("Speech recognition is not available on this device!");
     btn.setEnabled(false);
+} else {
+    TiSpeech.requestAuthorization(function(e) {
+        if (!e.sucess) {
+            alert("Speech recognition was not authorized!");
+            btn.setEnabled(false);
+        }
+    })
 }
 
 btn.addEventListener("click", function() {

@@ -1,11 +1,13 @@
-var SFSpeechRecognizer = require("Speech/SFSpeechRecognizer"),
-    SFSpeechURLRecognitionRequest = require("Speech/SFSpeechURLRecognitionRequest"),
-    NSLocale = require("Foundation/NSLocale"),
-    NSBundle = require("Foundation/NSBundle"),
-    NSURL = require("Foundation/NSURL"),
-    speechRecognizer,
-    SOURCE_TYPE_URL,
-    SOURCE_TYPE_MICROPHONE;
+var SFSpeechRecognizer = require("Speech/SFSpeechRecognizer");
+var SFSpeechURLRecognitionRequest = require("Speech/SFSpeechURLRecognitionRequest");
+var SFSpeechRecognizerAuthorizationStatusAuthorized = require("Speech").SFSpeechRecognizerAuthorizationStatusAuthorized;
+var NSBundle = require('Foundation/NSBundle');
+var NSLocale = require("Foundation/NSLocale");
+var NSURL = require('Foundation/NSURL');
+
+var speechRecognizer;
+var SOURCE_TYPE_URL;
+var SOURCE_TYPE_MICROPHONE;
 
 (function constructor() {
     SOURCE_TYPE_URL = "url";
@@ -19,6 +21,14 @@ exports.initialize = function(locale) {
     }
 
     speechRecognizer = SFSpeechRecognizer.alloc().initWithLocale(NSLocale.alloc().initWithLocaleIdentifier(locale));
+};
+
+exports.requestAuthorization = function(callback) {
+    SFSpeechRecognizer.requestAuthorization(function(status) {
+        callback({
+            success: status == SFSpeechRecognizerAuthorizationStatusAuthorized
+        });
+    });
 };
 
 exports.isSupported = function() {
@@ -35,7 +45,7 @@ exports.recognize = function(args) {
     
     if (type == SOURCE_TYPE_URL) {
         var url = args.url.split("."); // Keep it for now: Split into filename and extension
-        var soundPath = NSBundle.mainBundle().pathForResourceOfType(url[0], url[1]);
+        var soundPath = NSBundle.mainBundle.pathForResourceOfType(url[0], url[1]);
         var soundURL = NSURL.fileURLWithPath(soundPath);
 
         var request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundURL);
