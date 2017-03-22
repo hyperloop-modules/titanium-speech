@@ -1,10 +1,10 @@
 Ti.Speech
 ---
-(Experimental) iOS 10 speech-recognition example with Appcelerator Hyperloop.
+iOS 10 speech-recognition with Appcelerator Hyperloop.
 
 ### Requirements
 - [x] Titanium SDK 5.5.0.GA+
-- [x] Hyperloop 1.2.7+
+- [x] Hyperloop 2.0.0+
 - [x] Xcode 8+
 - [x] Include the following key in the plist-section of your tiapp.xml:
 ```xml
@@ -50,15 +50,11 @@ win.add(btn);
 win.open();
 ```
 
-
-Author
----------------
+### Author
 Hans Knoechel ([@hansemannnn](https://twitter.com/hansemannnn) / [Web](http://hans-knoechel.de))
 
-License
----------------
+### License
 Apache 2.0
 
-Contributing
----------------
-Code contributions are greatly appreciated, please submit a new [pull request](https://github.com/hansemannn/ti.speech/pull/new/master)!
+### Contributing
+Code contributions are greatly appreciated, please submit a new [pull request](https://github.com/hyperloop-modules/ti.speech/pull/new/master)!
