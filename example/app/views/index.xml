@@ -1,0 +1,17 @@
+<Alloy>
+	<NavigationWindow platform="ios">
+		<Window title="Speech Recognition" layout="vertical">
+			<Button id="toggleLiveRecognitionButton" top="20" onClick="toggleLiveRecognition">Start Listening to Live Audio</Button>
+			<Button id="toggleAudioRecognitionButton" top="20" onClick="toggleAudioRecognition">Start Listening to Audio File</Button>
+			<Button id="toggleVideoRecognitionButton" top="20" onClick="toggleVideoRecognition">Start Listening to Video File</Button>
+			<View height="2" backgroundColor="black" top="20" />
+			<Label top="20">Transcription:</Label>
+			<View>
+				<View width="fill" height="fill" backgroundColor="#252526" borderRadius="10" top="15" left="15" right="15" bottom="15">
+					<Label id="results" height="fill" width="fill" top="15" top="15" left="15" right="15" bottom="15" color="white" verticalAlign="Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP"
+					/>
+				</View>
+			</View>
+		</Window>
+	</NavigationWindow>
+</Alloy>
