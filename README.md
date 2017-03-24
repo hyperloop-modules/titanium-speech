@@ -19,6 +19,8 @@ iOS 10 speech-recognition with Appcelerator Hyperloop.
 4. Run the app with `appc run -p ios -I 10.0`
 
 ### Example
+
+#### Recognize from File URL
 ```js 
 var TiSpeech = require("ti.speech");
 TiSpeech.initialize("en_US");
@@ -50,8 +52,12 @@ win.add(btn);
 win.open();
 ```
 
+#### Recognize from Audio Input
+TBA
+
 ### Author
-Hans Knoechel ([@hansemannnn](https://twitter.com/hansemannnn) / [Web](http://hans-knoechel.de))
+* Hans Knoechel ([@hansemannnn](https://twitter.com/hansemannnn)
+* Brenton House [@brentonhouse](https://twitter.com/brentonhouse)
 
 ### License
 Apache 2.0
