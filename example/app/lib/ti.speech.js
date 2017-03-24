@@ -2,7 +2,7 @@
 /***
  * @file Use Speech Recognition functionality in iOS 10
  * @module ti.speech
- * @author Hans Knöchel <hknoechel@appcelerator.com>
+ * @author Hans Knöchel <hknoechel@axway.com>
  * @author Brenton House <brenton.house@gmail.com>
  * @requires Hyperloop
  * @requires Speech
@@ -10,20 +10,20 @@
  * @since 1.0.0
  */
 
-var AVAudioEngine = require( 'AVFoundation/AVAudioEngine' );
-var AVAudioSession = require( 'AVFoundation/AVAudioSession' );
-var AVFoundation = require( 'AVFoundation' );
-var NSBundle = require( 'Foundation/NSBundle' );
-var NSError = require( 'Foundation/NSError' );
-var NSLocale = require( 'Foundation/NSLocale' );
-var NSURL = require( 'Foundation/NSURL' );
-var SFSpeechAudioBufferRecognitionRequest = require( 'Speech/SFSpeechAudioBufferRecognitionRequest' );
-var SFSpeechRecognitionRequest = require( 'Speech/SFSpeechRecognitionRequest' );
-var SFSpeechRecognitionResult = require( 'Speech/SFSpeechRecognitionResult' );
-var SFSpeechRecognitionTask = require( 'Speech/SFSpeechRecognitionTask' );
-var SFSpeechRecognizer = require( 'Speech/SFSpeechRecognizer' );
-var SFSpeechURLRecognitionRequest = require( 'Speech/SFSpeechURLRecognitionRequest' );
-var Speech = require( 'Speech' );
+var AVAudioEngine = require('AVFoundation/AVAudioEngine');
+var AVAudioSession = require('AVFoundation/AVAudioSession');
+var AVFoundation = require('AVFoundation');
+var NSBundle = require('Foundation/NSBundle');
+var NSError = require('Foundation/NSError');
+var NSLocale = require('Foundation/NSLocale');
+var NSURL = require('Foundation/NSURL');
+var SFSpeechAudioBufferRecognitionRequest = require('Speech/SFSpeechAudioBufferRecognitionRequest');
+var SFSpeechRecognitionRequest = require('Speech/SFSpeechRecognitionRequest');
+var SFSpeechRecognitionResult = require('Speech/SFSpeechRecognitionResult');
+var SFSpeechRecognitionTask = require('Speech/SFSpeechRecognitionTask');
+var SFSpeechRecognizer = require('Speech/SFSpeechRecognizer');
+var SFSpeechURLRecognitionRequest = require('Speech/SFSpeechURLRecognitionRequest');
+var Speech = require('Speech');
 
 var audioEngine;
 var request;
@@ -38,18 +38,18 @@ var SOURCE_TYPE_MICROPHONE = 'microphone';
  * @param {string} locale - Locale to use for initializing speech recognizer
  * @since 1.0.0
  */
-exports.initialize = function ( locale ) {
-	if ( speechRecognizer ) {
-		speechRecognizer = null;
-		// Can't delete local variable in strict mode
-		// delete speechRecognizer;
-	}
+exports.initialize = function(locale) {
+    if (speechRecognizer) {
+        speechRecognizer = null;
+        // Can't delete local variable in strict mode
+        // delete speechRecognizer;
+    }
 
-	if ( locale ) {
-		speechRecognizer = SFSpeechRecognizer.alloc().initWithLocale( NSLocale.alloc().initWithLocaleIdentifier( locale ) );
-	} else {
-		speechRecognizer = new SFSpeechRecognizer();
-	}
+    if (locale) {
+        speechRecognizer = SFSpeechRecognizer.alloc().initWithLocale(NSLocale.alloc().initWithLocaleIdentifier(locale));
+    } else {
+        speechRecognizer = new SFSpeechRecognizer();
+    }
 };
 
 /**
@@ -67,48 +67,48 @@ exports.initialize = function ( locale ) {
  * @param {permissionCallback} callback - A function that is called when the authorization request has been approved or denied. 
  * @since 1.0.0
  */
-exports.requestSpeechRecognizerAuthorization = function ( callback ) {
-	SFSpeechRecognizer.requestAuthorization( function ( status ) {
-		var success = false;
-		var message = '';
+exports.requestSpeechRecognizerAuthorization = function(callback) {
+    SFSpeechRecognizer.requestAuthorization(function(status) {
+        var success = false;
+        var message = '';
 
-		switch ( status ) {
-			case Speech.SFSpeechRecognizerAuthorizationStatusAuthorized:
-				// User gave access to speech recognition
-				message = 'User gave access to speech recognition';
-				success = true;
-				break;
+        switch (status) {
+            case Speech.SFSpeechRecognizerAuthorizationStatusAuthorized:
+                // User gave access to speech recognition
+                message = 'User gave access to speech recognition';
+                success = true;
+                break;
 
-			case Speech.SFSpeechRecognizerAuthorizationStatusDenied:
-				// User denied access to speech recognition
-				message = 'User denied access to speech recognition';
-				break;
+            case Speech.SFSpeechRecognizerAuthorizationStatusDenied:
+                // User denied access to speech recognition
+                message = 'User denied access to speech recognition';
+                break;
 
-			case Speech.SFSpeechRecognizerAuthorizationStatusRestricted:
-				// Speech recognition restricted on this device
-				message = 'Speech recognition restricted on this device';
-				break;
+            case Speech.SFSpeechRecognizerAuthorizationStatusRestricted:
+                // Speech recognition restricted on this device
+                message = 'Speech recognition restricted on this device';
+                break;
 
-			case Speech.SFSpeechRecognizerAuthorizationStatusNotDetermined:
-				// Speech recognition not yet authorized
-				message = 'Speech recognition not yet authorized';
-				break;
+            case Speech.SFSpeechRecognizerAuthorizationStatusNotDetermined:
+                // Speech recognition not yet authorized
+                message = 'Speech recognition not yet authorized';
+                break;
 
-			default:
-				// Should not be here.  Issue should be resolved in Hyperloop 2.0.2.
-				message = 'Something has gone wrong requesting Speech Recogniction authorization';
-				break;
-		}
+            default:
+                // Should not be here.  Issue should be resolved in Hyperloop 2.0.2.
+                message = 'Something has gone wrong requesting Speech Recogniction authorization';
+                break;
+        }
 
-		//TODO:  Temporarily setting success to true until Hyperloop 2.0.2, https://jira.appcelerator.org/browse/TIMOB-23902
-		success = true;
+        // TODO:  Temporarily setting success to true until Hyperloop 2.0.2, https://jira.appcelerator.org/browse/TIMOB-23902
+        success = true;
 
-		callback( {
-			success: success,
-			message: message,
-			status: status,
-		} );
-	} );
+        callback({
+            success: success,
+            message: message,
+            status: status,
+        });
+    });
 };
 
 /**
@@ -117,45 +117,45 @@ exports.requestSpeechRecognizerAuthorization = function ( callback ) {
  * @param {permissionCallback} callback - A function that is called when the authorization request has been approved or denied. 
  * @since 1.0.0
  */
-exports.requestMicrophoneAuthorization = function ( callback ) {
-	audioSession = new AVAudioSession();
+exports.requestMicrophoneAuthorization = function(callback) {
+    audioSession = new AVAudioSession();
 
-	audioSession.requestRecordPermission( function ( status ) {
-		var success = false;
-		var message = '';
+    audioSession.requestRecordPermission(function(status) {
+        var success = false;
+        var message = '';
 
-		switch ( status ) {
-			case AVFoundation.AVAudioSessionRecordPermissionGranted:
-				// Recording permission has been granted.
-				message = 'Recording permission has been granted.';
-				success = true;
-				break;
+        switch (status) {
+            case AVFoundation.AVAudioSessionRecordPermissionGranted:
+                // Recording permission has been granted.
+                message = 'Recording permission has been granted.';
+                success = true;
+                break;
 
-			case AVFoundation.AVAudioSessionRecordPermissionDenied:
-				// Recording permission has been denied.
-				message = 'Recording permission has been denied.';
-				break;
+            case AVFoundation.AVAudioSessionRecordPermissionDenied:
+                // Recording permission has been denied.
+                message = 'Recording permission has been denied.';
+                break;
 
-			case AVFoundation.SFSpeechRecognizerAuthorizationStatusRestricted:
-				// Recording permission has not been granted or denied. This typically means that permission has yet to be requested, or is in the process of being requested.
-				message = 'Recording permission has not been granted or denied. This typically means that permission has yet to be requested, or is in the process of being requested.';
-				break;
+            case AVFoundation.SFSpeechRecognizerAuthorizationStatusRestricted:
+                // Recording permission has not been granted or denied. This typically means that permission has yet to be requested, or is in the process of being requested.
+                message = 'Recording permission has not been granted or denied. This typically means that permission has yet to be requested, or is in the process of being requested.';
+                break;
 
-			default:
-				// Should not be here.  Issue should be resolved in Hyperloop 2.0.2.
-				message = 'Something has gone wrong while requesting authorization to record';
-				break;
-		}
+            default:
+                // Should not be here.  Issue should be resolved in Hyperloop 2.0.2.
+                message = 'Something has gone wrong while requesting authorization to record';
+                break;
+        }
 
-		//TODO:  Temporarily setting success to true until Hyperloop 2.0.2, https://jira.appcelerator.org/browse/TIMOB-23902
-		success = true;
+        // TODO:  Temporarily setting success to true until Hyperloop 2.0.2, https://jira.appcelerator.org/browse/TIMOB-23902
+        success = true;
 
-		callback( {
-			success: success,
-			message: message,
-			status: status,
-		} );
-	} );
+        callback({
+            success: success,
+            message: message,
+            status: status,
+        });
+    });
 };
 
 
@@ -168,8 +168,8 @@ exports.requestMicrophoneAuthorization = function ( callback ) {
  * @since 1.0.0
  * @returns {boolean} - A Boolean value that indicates whether the speech recognizer is available.
  */
-exports.isAvailable = function () {
-	return speechRecognizer && speechRecognizer.isAvailable();
+exports.isAvailable = function() {
+    return speechRecognizer && speechRecognizer.isAvailable();
 };
 
 /**
@@ -193,146 +193,145 @@ exports.isAvailable = function () {
  * @since 1.0.0
  * @returns {boolean} - Returns true if started successfully, otherwise false.
  */
-exports.startRecognition = function ( args ) {
-	var type = args.type;
-	if ( !type && args.url ) {
-		type = SOURCE_TYPE_URL;
-	} else if ( !type ) {
-		type = SOURCE_TYPE_MICROPHONE;
-	}
+exports.startRecognition = function(args) {
 	var progressCallback = args.progress || null;
+	var type = args.type;
+    
+	if (!type && args.url) {
+        type = SOURCE_TYPE_URL;
+    } else if (!type) {
+        type = SOURCE_TYPE_MICROPHONE;
+    }
+    
+    if (!progressCallback) {
+        Ti.API.error('No "progress" callback supplied - You will not be notified about transcription updates');
+    }
 
-	if ( !progressCallback ) {
-		Ti.API.error( 'No "progress" callback supplied - You will not be notified about transcription updates' );
-	}
+    if (recognitionTask) {
+        recognitionTask.cancel();
+        recognitionTask = null;
+        // Can't delete local variable in strict mode
+        // delete recognitionTask;
+    }
 
-	if ( recognitionTask ) {
-		recognitionTask.cancel();
-		recognitionTask = null;
-		// Can't delete local variable in strict mode
-		// delete recognitionTask;
-	}
+    if (request) {
+        request = null;
+    }
 
-	if ( request ) {
-		request = null;
-	}
+    if (type == SOURCE_TYPE_URL) {
+        var url = args.url.split('.');
+        var ext = url.pop();
+        var soundPath = NSBundle.mainBundle.pathForResourceOfType(url.join('.'), ext);
+        var soundURL = NSURL.fileURLWithPath(soundPath);
 
-	if ( type == SOURCE_TYPE_URL ) {
-		var url = args.url.split( '.' );
-		var ext = url.pop();
-		var soundPath = NSBundle.mainBundle.pathForResourceOfType( url.join( '.' ), ext );
-		var soundURL = NSURL.fileURLWithPath( soundPath );
+        request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundURL);
+        if (!request) {
+            console.error('Unable to created a SFSpeechURLRecognitionRequest object');
+            return false;
+        }
 
-		request = SFSpeechURLRecognitionRequest.alloc().initWithURL( soundURL );
-		if ( !request ) {
-			console.error( 'Unable to created a SFSpeechURLRecognitionRequest object' );
-			return false;
-		}
+        request.shouldReportPartialResults = true;
 
-		request.shouldReportPartialResults = true;
+        if (!speechRecognizer) {
+            exports.initialize();
+        }
 
-		if ( !speechRecognizer ) {
-			exports.initialize();
-		}
+        recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
 
-		recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler( request, function ( result, error ) {
+            if (!recognitionTask) {
+                // The recognitionTask has already been cancelled.
+                return;
+            }
 
-			if ( !recognitionTask ) {
-				// The recognitionTask has already been cancelled.
-				return;
-			}
+            if (recognitionTask.state === Speech.SFSpeechRecognitionTaskStateCanceling) {
+                // The recognitionTask is being cancelled so no progress should be reported after this.
+                console.info('The speech recognition task has been cancelled.');
+                progressCallback &&
+                    progressCallback({
+                        error: error,
+                        value: result && result.bestTranscription.formattedString,
+                        state: recognitionTask.state,
+                        finished: true,
+                    });
 
-			if ( recognitionTask.state === Speech.SFSpeechRecognitionTaskStateCanceling ) {
-				// The recognitionTask is being cancelled so no progress should be reported after this.
-				console.info( 'The speech recognition task has been cancelled.' );
-				progressCallback &&
-					progressCallback( {
-						error: error,
-						value: result && result.bestTranscription.formattedString,
-						state: recognitionTask.state,
-						finished: true,
-					} );
+                progressCallback = null;
+                request = null;
+                recognitionTask = null;
+                return;
+            }
 
-				progressCallback = null;
-				request = null;
-				recognitionTask = null;
-				return;
-			}
+            progressCallback &&
+                progressCallback({
+                    error: error,
+                    value: result && result.bestTranscription.formattedString,
+                    state: recognitionTask.state,
+                    finished: result && result.isFinal(),
+                });
 
-			progressCallback &&
-				progressCallback( {
-					error: error,
-					value: result && result.bestTranscription.formattedString,
-					state: recognitionTask.state,
-					finished: result && result.isFinal(),
-				} );
+            if (error || (result && result.isFinal())) {
+                recognitionTask = null;
+                request = null;
+                return;
+            }
+        });
 
-			if ( error || ( result && result.isFinal() ) ) {
-				recognitionTask = null;
-				request = null;
-				return;
-			}
-		} );
+        return true;
+    } else if (type == SOURCE_TYPE_MICROPHONE) {
 
-		return true;
+        if (!audioEngine) {
+            audioEngine = new AVAudioEngine();
+        }
 
+        if (!audioEngine.inputNode) {
+            console.error('Audio engine has no input node');
+            return false;
+        }
 
-	} else if ( type == SOURCE_TYPE_MICROPHONE ) {
+        request = new SFSpeechAudioBufferRecognitionRequest();
+        request.shouldReportPartialResults = true;
 
-		if ( !audioEngine ) {
-			audioEngine = new AVAudioEngine();
-		}
+        // Create recognition task that will listen to live speech and send progress to callback
+        recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
 
-		if ( !audioEngine.inputNode ) {
-			console.error( 'Audio engine has no input node' );
-			return false;
-		}
+            progressCallback({
+                error: error,
+                value: result && result.bestTranscription.formattedString,
+                state: recognitionTask.state,
+                finished: result && result.isFinal(),
+            });
 
-		request = new SFSpeechAudioBufferRecognitionRequest();
-		request.shouldReportPartialResults = true;
+            if (error || (result && result.isFinal())) {
+                if (audioEngine.isRunning()) {
+                    audioEngine.stop();
+                }
+                if (request) {
+                    request.endAudio();
+                }
+                audioEngine.inputNode.removeTapOnBus(0);
+                recognitionTask = null;
+                request = null;
 
-		// Create recognition task that will listen to live speech and send progress to callback
-		recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler( request, function ( result, error ) {
+                return;
+            }
+        });
 
-			progressCallback( {
-				error: error,
-				value: result && result.bestTranscription.formattedString,
-				state: recognitionTask.state,
-				finished: result && result.isFinal(),
-			} );
+        audioEngine.inputNode.installTapOnBusBufferSizeFormatBlock(0, 1024, audioEngine.inputNode.outputFormatForBus(0), function(buffer, when) {
+            request && request.appendAudioPCMBuffer(buffer);
+        });
 
-			if ( error || ( result && result.isFinal() ) ) {
-				if ( audioEngine.isRunning() ) {
-					audioEngine.stop();
-				}
-				if ( request ) {
-					request.endAudio();
-				}
-				audioEngine.inputNode.removeTapOnBus( 0 );
-				recognitionTask = null;
-				request = null;
+        audioEngine.prepare();
+        var audioEngineStartError = new NSError();
+        var audioEngineStartSuccess = audioEngine.startAndReturnError(audioEngineStartError);
+        if (!audioEngineStartSuccess) {
+            //TODO: Do something with audioEngineStartError
+            return false;
+        }
 
-				return;
-			}
-		} );
-
-		audioEngine.inputNode.installTapOnBusBufferSizeFormatBlock( 0, 1024, audioEngine.inputNode.outputFormatForBus( 0 ), function ( buffer, when ) {
-			request && request.appendAudioPCMBuffer( buffer );
-		} );
-
-		audioEngine.prepare();
-		var audioEngineStartError = new NSError();
-		var audioEngineStartSuccess = audioEngine.startAndReturnError( audioEngineStartError );
-		if ( !audioEngineStartSuccess ) {
-			//TODO: Do something with audioEngineStartError
-			return false;
-		}
-
-		return true;
-	} else {
-		console.error( 'Unhandled type supplied:' + type );
-		return false;
-	}
+        return true;
+    } else {
+        console.error('Unhandled type supplied:' + type);
+        return false;
+    }
 };
 
 /**
@@ -340,16 +339,16 @@ exports.startRecognition = function ( args ) {
  * @summary Forces speech recognition components to stop processing
  * @since 1.0.0
  */
-exports.stopRecognition = function () {
-	if ( audioEngine && audioEngine.isRunning() ) {
-		// if we are using the audioEngine for real-time audio, we need to stop components
-		audioEngine.stop();
-		request && request.endAudio();
-		audioEngine.inputNode.removeTapOnBus( 0 );
-	} else if ( recognitionTask ) {
-		// If are using a file for audio recoginition, we need to cancel the recognition task
-		recognitionTask.cancel();
-	}
+exports.stopRecognition = function() {
+    if (audioEngine && audioEngine.isRunning()) {
+        // if we are using the audioEngine for real-time audio, we need to stop components
+        audioEngine.stop();
+        request && request.endAudio();
+        audioEngine.inputNode.removeTapOnBus(0);
+    } else if (recognitionTask) {
+        // If are using a file for audio recoginition, we need to cancel the recognition task
+        recognitionTask.cancel();
+    }
 };
 
 exports.SOURCE_TYPE_URL = SOURCE_TYPE_URL;
