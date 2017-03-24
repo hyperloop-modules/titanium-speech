@@ -96,7 +96,7 @@ exports.requestSpeechRecognizerAuthorization = function ( callback ) {
 
 			default:
 				// Should not be here.  Issue should be resolved in Hyperloop 2.0.2.
-				message = 'Something has gone wrong when determining Speech Recogniction authorization';
+				message = 'Something has gone wrong requesting Speech Recogniction authorization';
 				break;
 		}
 
@@ -143,7 +143,7 @@ exports.requestMicrophoneAuthorization = function ( callback ) {
 
 			default:
 				// Should not be here.  Issue should be resolved in Hyperloop 2.0.2.
-				message = 'Something has gone wrong when determining recording authorization';
+				message = 'Something has gone wrong while requesting authorization to record';
 				break;
 		}
 
@@ -218,7 +218,7 @@ exports.startRecognition = function ( args ) {
 	}
 
 	if ( type == SOURCE_TYPE_URL ) {
-		var url = args.url.split( '.' ); 
+		var url = args.url.split( '.' );
 		var ext = url.pop();
 		var soundPath = NSBundle.mainBundle.pathForResourceOfType( url.join( '.' ), ext );
 		var soundURL = NSURL.fileURLWithPath( soundPath );
