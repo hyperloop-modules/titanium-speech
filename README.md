@@ -56,8 +56,8 @@ win.open();
 TBA
 
 ### Author
-* Hans Knoechel ([@hansemannnn](https://twitter.com/hansemannnn)
-* Brenton House [@brentonhouse](https://twitter.com/brentonhouse)
+* Hans Knoechel ([@hansemannnn](https://twitter.com/hansemannnn))
+* Brenton House ([@brentonhouse](https://twitter.com/brentonhouse))
 
 ### License
 Apache 2.0
