@@ -1,23 +1,39 @@
 var TiSpeech = require( 'ti.speech' );
 TiSpeech.initialize();
 
+var canRecordAudio = false;
+var canUseSpeechRecognition = false;
+var isRunning = false;
+
 if ( !TiSpeech.isAvailable() ) {
 	alert( 'Speech recognition is not available on this device!' );
-	$.toggleLiveRecognitionButton.setEnabled( false );
-	$.toggleAudioRecognitionButton.setEnabled( false );
-	$.toggleVideoRecognitionButton.setEnabled( false );
 } else {
-	TiSpeech.requestAuthorization( function ( e ) {
+	TiSpeech.requestSpeechRecognizerAuthorization( function ( e ) {
+		canUseSpeechRecognition = !!e.success;
 		if ( !e.success ) {
 			alert( "Speech recognition was not authorized!" );
-			$.toggleLiveRecognitionButton.setEnabled( false );
-			$.toggleAudioRecognitionButton.setEnabled( false );
-			$.toggleVideoRecognitionButton.setEnabled( false );
+		} else {
+			TiSpeech.requestMicrophoneAuthorization( function ( e ) {
+				canRecordAudio = !!e.success;
+				if ( !e.success ) {
+					alert( "Permission to record audio was not authorized!" );
+				}
+				enableButtons();
+			} );
 		}
 	} );
 }
 
-var isRunning = false;
+/**
+ * @function enableButtons
+ * @summary Enable buttons based on permissions granted by user
+ * @since 1.0.0
+ */
+function enableButtons() {
+	canUseSpeechRecognition && canRecordAudio && $.toggleLiveRecognitionButton.setEnabled( true );
+	canUseSpeechRecognition && $.toggleAudioRecognitionButton.setEnabled( true );
+	canUseSpeechRecognition && $.toggleVideoRecognitionButton.setEnabled( true );
+}
 
 /**
  * @function stopRecognition
@@ -44,17 +60,17 @@ function stopRecognition() {
 /**
  * @function progressCallback
  * @summary Function used to report progress of speech recognition
- * @param {object} e - Resulting progress object
- * @param {boolean} e.finished - Indicates if the speech recognition has completed
- * @param {object} e.error - If an error occurred, this parameter will contain the error information
- * @param {string} e.value - Transcript of the recognized speech
+ * @param {object} result - Resulting progress object
+ * @param {boolean} result.finished - Indicates if the speech recognition has completed
+ * @param {object} result.error - If an error occurred, this parameter will contain the error information
+ * @param {string} result.value - Transcript of the recognized speech
  * @since 1.0.0
  */
-function progressCallback( e ) {
-	if ( e.error ) {
+function progressCallback( result ) {
+	if ( result.error ) {
 		console.error( 'An error occurred with speech recognition' );
-		console.error( e.error );
-		if ( e.error.toString().match( /Timeout/g ) ) {
+		console.error( result.error );
+		if ( result.error.toString().match( /Timeout/g ) ) {
 			alert( 'Time limit exceeded for speech recognition' );
 		} else {
 			alert( 'An error occurred with speech recognition' );
@@ -62,9 +78,9 @@ function progressCallback( e ) {
 		stopRecognition();
 		return;
 	} else {
-		$.results.setText( e.value );
+		$.results.setText( result.value );
 	}
-	if ( e.finished ) {
+	if ( result.finished ) {
 		isRunning = false;
 		stopRecognition();
 	}

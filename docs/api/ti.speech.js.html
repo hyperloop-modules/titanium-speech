@@ -1,9 +1,48 @@
-'use strict';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ti.speech.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#isAvailable">isAvailable</a></li><li><a href="global.html#requestMicrophoneAuthorization">requestMicrophoneAuthorization</a></li><li><a href="global.html#requestSpeechRecognizerAuthorization">requestSpeechRecognizerAuthorization</a></li><li><a href="global.html#startRecognition">startRecognition</a></li><li><a href="global.html#stopRecognition">stopRecognition</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">ti.speech.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
 /***
  * @file Use Speech Recognition functionality in iOS 10
  * @module ti.speech
- * @author Hans Knöchel <hknoechel@appcelerator.com>
- * @author Brenton House <brenton.house@gmail.com>
+ * @author Hans Knöchel &lt;hknoechel@appcelerator.com>
+ * @author Brenton House &lt;brenton.house@gmail.com>
  * @requires Hyperloop
  * @requires Speech
  * @version 1.0.0
@@ -169,7 +208,7 @@ exports.requestMicrophoneAuthorization = function ( callback ) {
  * @returns {boolean} - A Boolean value that indicates whether the speech recognizer is available.
  */
 exports.isAvailable = function () {
-	return speechRecognizer && speechRecognizer.isAvailable();
+	return speechRecognizer &amp;&amp; speechRecognizer.isAvailable();
 };
 
 /**
@@ -195,7 +234,7 @@ exports.isAvailable = function () {
  */
 exports.startRecognition = function ( args ) {
 	var type = args.type;
-	if ( !type && args.url ) {
+	if ( !type &amp;&amp; args.url ) {
 		type = SOURCE_TYPE_URL;
 	} else if ( !type ) {
 		type = SOURCE_TYPE_MICROPHONE;
@@ -245,10 +284,10 @@ exports.startRecognition = function ( args ) {
 			if ( recognitionTask.state === Speech.SFSpeechRecognitionTaskStateCanceling ) {
 				// The recognitionTask is being cancelled so no progress should be reported after this.
 				console.info( 'The speech recognition task has been cancelled.' );
-				progressCallback &&
+				progressCallback &amp;&amp;
 					progressCallback( {
 						error: error,
-						value: result && result.bestTranscription.formattedString,
+						value: result &amp;&amp; result.bestTranscription.formattedString,
 						state: recognitionTask.state,
 						finished: true,
 					} );
@@ -259,15 +298,15 @@ exports.startRecognition = function ( args ) {
 				return;
 			}
 
-			progressCallback &&
+			progressCallback &amp;&amp;
 				progressCallback( {
 					error: error,
-					value: result && result.bestTranscription.formattedString,
+					value: result &amp;&amp; result.bestTranscription.formattedString,
 					state: recognitionTask.state,
-					finished: result && result.isFinal(),
+					finished: result &amp;&amp; result.isFinal(),
 				} );
 
-			if ( error || ( result && result.isFinal() ) ) {
+			if ( error || ( result &amp;&amp; result.isFinal() ) ) {
 				recognitionTask = null;
 				request = null;
 				return;
@@ -296,12 +335,12 @@ exports.startRecognition = function ( args ) {
 
 			progressCallback( {
 				error: error,
-				value: result && result.bestTranscription.formattedString,
+				value: result &amp;&amp; result.bestTranscription.formattedString,
 				state: recognitionTask.state,
-				finished: result && result.isFinal(),
+				finished: result &amp;&amp; result.isFinal(),
 			} );
 
-			if ( error || ( result && result.isFinal() ) ) {
+			if ( error || ( result &amp;&amp; result.isFinal() ) ) {
 				if ( audioEngine.isRunning() ) {
 					audioEngine.stop();
 				}
@@ -317,7 +356,7 @@ exports.startRecognition = function ( args ) {
 		} );
 
 		audioEngine.inputNode.installTapOnBusBufferSizeFormatBlock( 0, 1024, audioEngine.inputNode.outputFormatForBus( 0 ), function ( buffer, when ) {
-			request && request.appendAudioPCMBuffer( buffer );
+			request &amp;&amp; request.appendAudioPCMBuffer( buffer );
 		} );
 
 		audioEngine.prepare();
@@ -341,10 +380,10 @@ exports.startRecognition = function ( args ) {
  * @since 1.0.0
  */
 exports.stopRecognition = function () {
-	if ( audioEngine && audioEngine.isRunning() ) {
+	if ( audioEngine &amp;&amp; audioEngine.isRunning() ) {
 		// if we are using the audioEngine for real-time audio, we need to stop components
 		audioEngine.stop();
-		request && request.endAudio();
+		request &amp;&amp; request.endAudio();
 		audioEngine.inputNode.removeTapOnBus( 0 );
 	} else if ( recognitionTask ) {
 		// If are using a file for audio recoginition, we need to cancel the recognition task
@@ -358,4 +397,22 @@ exports.RECOGNITION_STATE_STARTING = Speech.SFSpeechRecognitionTaskStateStarting
 exports.RECOGNITION_STATE_RUNNING = Speech.SFSpeechRecognitionTaskStateRunning;
 exports.RECOGNITION_STATE_FINISHING = Speech.SFSpeechRecognitionTaskStateFinishing;
 exports.RECOGNITION_STATE_COMPLETED = Speech.SFSpeechRecognitionTaskStateCompleted;
-exports.RECOGNITION_STATE_CANCELING = Speech.SFSpeechRecognitionTaskStateCanceling;
+exports.RECOGNITION_STATE_CANCELING = Speech.SFSpeechRecognitionTaskStateCanceling;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Mar 23 2017 20:19:36 GMT-0500 (CDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
