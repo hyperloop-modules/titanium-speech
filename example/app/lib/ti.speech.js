@@ -118,7 +118,7 @@ exports.requestSpeechRecognizerAuthorization = function(callback) {
  * @since 1.0.0
  */
 exports.requestMicrophoneAuthorization = function(callback) {
-    audioSession = new AVAudioSession();
+    var audioSession = new AVAudioSession();
 
     audioSession.requestRecordPermission(function(status) {
         var success = false;
