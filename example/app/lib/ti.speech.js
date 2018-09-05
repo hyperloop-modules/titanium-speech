@@ -31,6 +31,7 @@ var recognitionTask;
 var speechRecognizer;
 var SOURCE_TYPE_URL = 'url';
 var SOURCE_TYPE_MICROPHONE = 'microphone';
+var SOURCE_TYPE_FILENAME = 'filename';
 
 /**
  * @function initialize
@@ -218,49 +219,82 @@ exports.startRecognition = function(args) {
         request = null;
     }
 
-    if (type == SOURCE_TYPE_URL) {
-        var url = args.url.split('.');
-        var ext = url.pop();
-        var soundPath = NSBundle.mainBundle.pathForResourceOfType(url.join('.'), ext);
-        var soundURL = NSURL.fileURLWithPath(soundPath);
+    switch (type) {
+        case SOURCE_TYPE_URL:
+            var url = args.url.split('.');
+            var ext = url.pop();
+            var soundPath = NSBundle.mainBundle.pathForResourceOfType(url.join('.'), ext);
+            var soundURL = NSURL.fileURLWithPath(soundPath);
 
-        request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundURL);
-        if (!request) {
-            console.error('Unable to created a SFSpeechURLRecognitionRequest object');
-            return false;
-        }
-
-        request.shouldReportPartialResults = true;
-
-        if (!speechRecognizer) {
-            exports.initialize();
-        }
-
-        recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
-
-            if (!recognitionTask) {
-                // The recognitionTask has already been cancelled.
-                return;
+            request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundURL);
+            if (!request) {
+                console.error('Unable to created a SFSpeechURLRecognitionRequest object');
+                return false;
             }
 
-            if (recognitionTask.state === Speech.SFSpeechRecognitionTaskStateCanceling) {
-                // The recognitionTask is being cancelled so no progress should be reported after this.
-                console.info('The speech recognition task has been cancelled.');
+            request.shouldReportPartialResults = true;
+
+            if (!speechRecognizer) {
+                exports.initialize();
+            }
+
+            recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
+
+                if (!recognitionTask) {
+                    // The recognitionTask has already been cancelled.
+                    return;
+                }
+
+                if (recognitionTask.state === Speech.SFSpeechRecognitionTaskStateCanceling) {
+                    // The recognitionTask is being cancelled so no progress should be reported after this.
+                    console.info('The speech recognition task has been cancelled.');
+                    progressCallback &&
+                        progressCallback({
+                            error: error,
+                            value: result && result.bestTranscription.formattedString,
+                            state: recognitionTask.state,
+                            finished: true,
+                        });
+
+                    progressCallback = null;
+                    request = null;
+                    recognitionTask = null;
+                    return;
+                }
+
                 progressCallback &&
                     progressCallback({
                         error: error,
                         value: result && result.bestTranscription.formattedString,
                         state: recognitionTask.state,
-                        finished: true,
+                        finished: result && result.isFinal(),
                     });
 
-                progressCallback = null;
-                request = null;
-                recognitionTask = null;
-                return;
+                if (error || (result && result.isFinal())) {
+                    recognitionTask = null;
+                    request = null;
+                    return;
+                }
+            });
+
+            return true;
+            break;
+        case SOURCE_TYPE_MICROPHONE:
+            if (!audioEngine) {
+                audioEngine = new AVAudioEngine();
             }
 
-            progressCallback &&
+            if (!audioEngine.inputNode) {
+                console.error('Audio engine has no input node');
+                return false;
+            }
+
+            request = new SFSpeechAudioBufferRecognitionRequest();
+            request.shouldReportPartialResults = true;
+
+            // Create recognition task that will listen to live speech and send progress to callback
+            recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
+
                 progressCallback({
                     error: error,
                     value: result && result.bestTranscription.formattedString,
@@ -268,69 +302,97 @@ exports.startRecognition = function(args) {
                     finished: result && result.isFinal(),
                 });
 
-            if (error || (result && result.isFinal())) {
-                recognitionTask = null;
-                request = null;
-                return;
-            }
-        });
+                if (error || (result && result.isFinal())) {
+                    if (audioEngine.isRunning()) {
+                        audioEngine.stop();
+                    }
+                    if (request) {
+                        request.endAudio();
+                    }
+                    audioEngine.inputNode.removeTapOnBus(0);
+                    recognitionTask = null;
+                    request = null;
 
-        return true;
-    } else if (type == SOURCE_TYPE_MICROPHONE) {
-
-        if (!audioEngine) {
-            audioEngine = new AVAudioEngine();
-        }
-
-        if (!audioEngine.inputNode) {
-            console.error('Audio engine has no input node');
-            return false;
-        }
-
-        request = new SFSpeechAudioBufferRecognitionRequest();
-        request.shouldReportPartialResults = true;
-
-        // Create recognition task that will listen to live speech and send progress to callback
-        recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
-
-            progressCallback({
-                error: error,
-                value: result && result.bestTranscription.formattedString,
-                state: recognitionTask.state,
-                finished: result && result.isFinal(),
+                    return;
+                }
             });
 
-            if (error || (result && result.isFinal())) {
-                if (audioEngine.isRunning()) {
-                    audioEngine.stop();
-                }
-                if (request) {
-                    request.endAudio();
-                }
-                audioEngine.inputNode.removeTapOnBus(0);
-                recognitionTask = null;
-                request = null;
+            audioEngine.inputNode.installTapOnBusBufferSizeFormatBlock(0, 1024, audioEngine.inputNode.outputFormatForBus(0), function(buffer, when) {
+                request && request.appendAudioPCMBuffer(buffer);
+            });
 
-                return;
+            audioEngine.prepare();
+            var audioEngineStartError = new NSError();
+            var audioEngineStartSuccess = audioEngine.startAndReturnError(audioEngineStartError);
+            if (!audioEngineStartSuccess) {
+                //TODO: Do something with audioEngineStartError
+                return false;
             }
-        });
 
-        audioEngine.inputNode.installTapOnBusBufferSizeFormatBlock(0, 1024, audioEngine.inputNode.outputFormatForBus(0), function(buffer, when) {
-            request && request.appendAudioPCMBuffer(buffer);
-        });
+            return true;
+            break;
+        case SOURCE_TYPE_FILENAME:
+            var url = args.url;
+            var soundURL = NSURL.URLWithString(url);
 
-        audioEngine.prepare();
-        var audioEngineStartError = new NSError();
-        var audioEngineStartSuccess = audioEngine.startAndReturnError(audioEngineStartError);
-        if (!audioEngineStartSuccess) {
-            //TODO: Do something with audioEngineStartError
+            request = SFSpeechURLRecognitionRequest.alloc().initWithURL(soundURL);
+            if (!request) {
+                console.error('Unable to created a SFSpeechURLRecognitionRequest object');
+                return false;
+            }
+
+            request.shouldReportPartialResults = true;
+
+            if (!speechRecognizer) {
+                exports.initialize();
+            }
+
+            recognitionTask = speechRecognizer.recognitionTaskWithRequestResultHandler(request, function(result, error) {
+
+                if (!recognitionTask) {
+                    // The recognitionTask has already been cancelled.
+                    return;
+                }
+
+                if (recognitionTask.state === Speech.SFSpeechRecognitionTaskStateCanceling) {
+                    // The recognitionTask is being cancelled so no progress should be reported after this.
+                    console.info('The speech recognition task has been cancelled.');
+                    progressCallback &&
+                        progressCallback({
+                            error: error,
+                            value: result && result.bestTranscription.formattedString,
+                            state: recognitionTask.state,
+                            finished: true,
+                        });
+
+                    progressCallback = null;
+                    request = null;
+                    recognitionTask = null;
+                    return;
+                }
+
+                progressCallback &&
+                    progressCallback({
+                        error: error,
+                        value: result && result.bestTranscription.formattedString,
+                        state: recognitionTask.state,
+                        finished: result && result.isFinal(),
+                    });
+
+                if (error || (result && result.isFinal())) {
+                    recognitionTask = null;
+                    request = null;
+                    return;
+                }
+            });
+
+            return true;
+
+            break;
+        default:
+            console.error('Unhandled type supplied:' + type);
             return false;
-        }
-
-        return true;
-    } else {
-        console.error('Unhandled type supplied:' + type);
-        return false;
+            break;
     }
 };
 
@@ -351,6 +413,7 @@ exports.stopRecognition = function() {
     }
 };
 
+exports.SOURCE_TYPE_FILENAME = SOURCE_TYPE_FILENAME;
 exports.SOURCE_TYPE_URL = SOURCE_TYPE_URL;
 exports.SOURCE_TYPE_MICROPHONE = SOURCE_TYPE_MICROPHONE;
 exports.RECOGNITION_STATE_STARTING = Speech.SFSpeechRecognitionTaskStateStarting;
