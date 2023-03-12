@@ -9,21 +9,10 @@
  * @version 1.0.0
  * @since 1.0.0
  */
-
-var AVAudioEngine = require('AVFoundation/AVAudioEngine');
-var AVAudioSession = require('AVFoundation/AVAudioSession');
-var AVFoundation = require('AVFoundation');
-var NSBundle = require('Foundation/NSBundle');
-var NSError = require('Foundation/NSError');
-var NSLocale = require('Foundation/NSLocale');
-var NSURL = require('Foundation/NSURL');
-var SFSpeechAudioBufferRecognitionRequest = require('Speech/SFSpeechAudioBufferRecognitionRequest');
-var SFSpeechRecognitionRequest = require('Speech/SFSpeechRecognitionRequest');
-var SFSpeechRecognitionResult = require('Speech/SFSpeechRecognitionResult');
-var SFSpeechRecognitionTask = require('Speech/SFSpeechRecognitionTask');
-var SFSpeechRecognizer = require('Speech/SFSpeechRecognizer');
-var SFSpeechURLRecognitionRequest = require('Speech/SFSpeechURLRecognitionRequest');
-var Speech = require('Speech');
+import { AVAudioEngine, AVAudioSession, AVFoundation } from 'AVFoundation';
+import { NSBundle, NSError, NSLocale, NSURL } from 'Foundation';
+import { SFSpeechAudioBufferRecognitionRequest, SFSpeechRecognitionRequest,SFSpeechRecognitionResult,
+SFSpeechRecognitionTask, SFSpeechRecognizer, SFSpeechURLRecognitionRequest, Speech } from 'Speech';
 
 var audioEngine;
 var request;
@@ -64,7 +53,7 @@ exports.initialize = function(locale) {
 /**
  * @function requestSpeechRecognizerAuthorization
  * @summary Asks the user to grant your app permission to perform speech recognition.
- * @param {permissionCallback} callback - A function that is called when the authorization request has been approved or denied. 
+ * @param {permissionCallback} callback - A function that is called when the authorization request has been approved or denied.
  * @since 1.0.0
  */
 exports.requestSpeechRecognizerAuthorization = function(callback) {
@@ -114,7 +103,7 @@ exports.requestSpeechRecognizerAuthorization = function(callback) {
 /**
  * @function requestMicrophoneAuthorization
  * @summary Asks the user to grant your app permission to record audio using microphone.
- * @param {permissionCallback} callback - A function that is called when the authorization request has been approved or denied. 
+ * @param {permissionCallback} callback - A function that is called when the authorization request has been approved or denied.
  * @since 1.0.0
  */
 exports.requestMicrophoneAuthorization = function(callback) {
@@ -161,7 +150,7 @@ exports.requestMicrophoneAuthorization = function(callback) {
 
 /**
  * Indicates whether the speech recognizer is available.
- * Even though a speech recognizer is supported for a specific locale, 
+ * Even though a speech recognizer is supported for a specific locale,
  * it might be unavailable for reasons such as a nonfunctioning Internet connection.
  * @function isAvailable
  * @summary Indicates whether the speech recognizer is available.
@@ -196,13 +185,13 @@ exports.isAvailable = function() {
 exports.startRecognition = function(args) {
 	var progressCallback = args.progress || null;
 	var type = args.type;
-    
+
 	if (!type && args.url) {
         type = SOURCE_TYPE_URL;
     } else if (!type) {
         type = SOURCE_TYPE_MICROPHONE;
     }
-    
+
     if (!progressCallback) {
         Ti.API.error('No "progress" callback supplied - You will not be notified about transcription updates');
     }

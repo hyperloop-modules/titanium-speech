@@ -1,6 +1,6 @@
 /**
  * Alloy
- * Copyright (c) 2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * See LICENSE for more information on licensing.
  */
 
@@ -13,7 +13,7 @@ exports.init = function (logger, config, cli, appc) {
 		afs = appc.fs;
 
 	function run(finished) {
-		if(cli.argv['shallow'] === '') {
+		if (cli.argv['shallow'] === '') {
 			logger.info('Not cleaning the Resources directory');
 			finished();
 			return;
@@ -46,8 +46,7 @@ function rmdir(dirPath, fs, path, logger, removeSelf) {
 	var files;
 	try {
 		files = fs.readdirSync(dirPath);
-	}
-	catch(e) {
+	} catch (e) {
 		return;
 	}
 	if (files.length > 0) {
