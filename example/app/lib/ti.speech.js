@@ -9,7 +9,8 @@
  * @version 1.0.0
  * @since 1.0.0
  */
-import { AVAudioEngine, AVAudioSession, AVFoundation } from 'AVFoundation';
+import { AVAudioEngine } from 'AVFAudio';
+import { AVAudioSession, AVFoundation } from 'AVFoundation';
 import { NSBundle, NSError, NSLocale, NSURL } from 'Foundation';
 import { SFSpeechAudioBufferRecognitionRequest, SFSpeechRecognitionRequest,SFSpeechRecognitionResult,
 SFSpeechRecognitionTask, SFSpeechRecognizer, SFSpeechURLRecognitionRequest, Speech } from 'Speech';
