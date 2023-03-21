@@ -1,3 +1,5 @@
+Ti.Media.audioSessionCategory = Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD;
+
 var TiSpeech = require('ti.speech');
 TiSpeech.initialize();
 
