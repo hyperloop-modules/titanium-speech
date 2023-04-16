@@ -1,3 +1,5 @@
+Ti.Media.audioSessionCategory = Titanium.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD;
+
 var TiSpeech = require('ti.speech');
 TiSpeech.initialize();
 
@@ -5,24 +7,17 @@ var canRecordAudio = false;
 var canUseSpeechRecognition = false;
 var isRunning = false;
 
-if (!TiSpeech.isAvailable()) {
-    alert('Speech recognition is not available on this device!');
-} else {
-    TiSpeech.requestSpeechRecognizerAuthorization(function(e) {
-        canUseSpeechRecognition = !!e.success;
-        if (!e.success) {
-            alert("Speech recognition was not authorized!");
-        } else {
-            TiSpeech.requestMicrophoneAuthorization(function(e) {
-                canRecordAudio = !!e.success;
-                if (!e.success) {
-                    alert("Permission to record audio was not authorized!");
-                }
-                enableButtons();
-            });
-        }
-    });
-}
+
+Ti.Media.requestAudioRecorderPermissions(function(e){
+  if (e.success) {
+    if (!TiSpeech.isAvailable()) {
+        alert('Speech recognition is not available on this device!');
+    } else {
+      enableButtons();
+    }
+  }
+});
+
 
 /**
  * @function enableButtons
@@ -30,9 +25,9 @@ if (!TiSpeech.isAvailable()) {
  * @since 1.0.0
  */
 function enableButtons() {
-    canUseSpeechRecognition && canRecordAudio && $.toggleLiveRecognitionButton.setEnabled(true);
-    canUseSpeechRecognition && $.toggleAudioRecognitionButton.setEnabled(true);
-    canUseSpeechRecognition && $.toggleVideoRecognitionButton.setEnabled(true);
+    $.toggleLiveRecognitionButton.enabled = true;
+    $.toggleAudioRecognitionButton.enabled = true;
+    $.toggleVideoRecognitionButton.enabled = true;
 }
 
 /**
@@ -52,9 +47,9 @@ function stopRecognition() {
     $.toggleAudioRecognitionButton.title = 'Start Listening to Audio File';
     $.toggleVideoRecognitionButton.title = 'Start Listening to Video File';
 
-    $.toggleLiveRecognitionButton.setEnabled(true);
-    $.toggleAudioRecognitionButton.setEnabled(true);
-    $.toggleVideoRecognitionButton.setEnabled(true);
+    $.toggleLiveRecognitionButton.enabled = true;
+    $.toggleAudioRecognitionButton.enabled = true;
+    $.toggleVideoRecognitionButton.enabled = true;
 }
 
 /**
@@ -78,7 +73,7 @@ function progressCallback(result) {
         stopRecognition();
         return;
     } else {
-        $.results.setText(result.value);
+        $.results.text = result.value;
     }
     if (result.finished) {
         isRunning = false;
@@ -92,7 +87,7 @@ function toggleLiveRecognition(e) {
     if (isRunning) {
         stopRecognition();
     } else {
-        $.results.setText('Listening...');
+        $.results.text = 'Listening...';
 
         var success = TiSpeech.startRecognition({
             progress: progressCallback,
@@ -112,7 +107,7 @@ function toggleAudioRecognition(e) {
     if (isRunning) {
         stopRecognition();
     } else {
-        $.results.setText('Loading Audio File...');
+        $.results.text = 'Loading Audio File...';
         var success = TiSpeech.startRecognition({
             type: TiSpeech.SOURCE_TYPE_URL,
             url: 'one_more_thing.mp3',
@@ -132,7 +127,7 @@ function toggleVideoRecognition(e) {
     if (isRunning) {
         stopRecognition();
     } else {
-        $.results.setText('Loading Video File...');
+        $.results.text = 'Loading Video File...';
 
         var success = TiSpeech.startRecognition({
             type: TiSpeech.SOURCE_TYPE_URL,
